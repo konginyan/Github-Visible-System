@@ -79,7 +79,7 @@
 四、个人 API:
 1. http://www.kongin.cn/git-view/private/authorize
 - 返回类型：无
-- 参数: 无
+- 参数: redirect_uri: 授权登录之后跳转的页面 url
 - 结果: 跳转到 github 页面登录授权，得到带有 code 的跳转请求
 
 2. http://www.kongin.cn/git-view/private/gettoken
@@ -100,7 +100,7 @@
 - 结果: 授权登录人的仓库
 
 4. http://www.kongin.cn/git-view/private/languages
-- 返回类型:  json
+- 返回类型:  jsonArray
 - 参数: 
   - token: access_token (in API 2)
 - 结果: 授权登录人的仓库语言分布

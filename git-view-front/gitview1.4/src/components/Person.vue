@@ -79,12 +79,7 @@ export default {
       var modifydata = []
       let temp
       await this.$http.get('http://www.kongin.cn/git-view/repos/CodeFrequency?fullname=' + this.$route.query.keyword).then(response => {
-        if (response.body.length > 10) {
-          temp = 10
-        } else {
-          temp = response.body.length
-        }
-        for (let i = 0; i < temp; i++) {
+        for (let i = 0; i < response.body.length; i++) {
           var add = response.body[i].additions
           var del = response.body[i].deletions
           var dat = response.body[i].week
@@ -251,6 +246,13 @@ export default {
         legend: {
           data: ['The number of commit']
         },
+        title: {
+          left: 'left',
+          text: 'weekly commit',
+          textStyle: {
+            color: lineColor
+          }
+        },
         grid: {
           left: '3%',
           right: '4%',
@@ -306,7 +308,7 @@ export default {
       var days = ['Sunday', 'Monday', 'Thursday', 'Wednesday', 'Tuesday', 'Friday', 'Saturday']
       var data = []
       var maxdata = this.maxcommit
-      console.log('max' + maxdata)
+      // console.log('浏览器' + window.screen.height + '/' +window.screen.width)
       data = this.commitdata.map(function (item) {
         return [item[1], item[0], item[2]]
       })
@@ -316,6 +318,13 @@ export default {
         legend: {
           data: ['Punch Card'],
           left: 'center',
+          textStyle: {
+            color: lineColor
+          }
+        },
+        title: {
+          left: 'left',
+          text: 'Punch card',
           textStyle: {
             color: lineColor
           }
@@ -378,8 +387,8 @@ export default {
             }
           },
           symbolSize: function (val) {
-            console.log(val[2])
-            return (Math.log(Math.pow(val[2], 1.5)) / Math.log(Math.pow(maxdata, 1 / 6)) + 2) * 4
+            // console.log(val[2])
+            return (Math.log(Math.pow(val[2], 1.5)) / Math.log(Math.pow(maxdata * window.screen.width / 800, 1 / 6)) + 2) * 4
           },
           data: data,
           animationDelay: function (idx) {
@@ -399,6 +408,22 @@ export default {
             type: 'line'        // 默认为直线，可选为：'line' | 'shadow'
           }
         },
+        title: {
+          left: 'left',
+          text: '增删代码量图',
+          textStyle: {
+            color: lineColor
+          }
+        },
+        toolbox: {
+            feature: {
+            /* datazoom: {
+              yAxisIndex: 'none'
+            },*/
+            restore: {},
+            saveAsImage: {}
+          }
+        },
         legend: {
           data: ['代码变化量', '减少代码量', '增加代码量'],
           textStyle: {
@@ -414,6 +439,7 @@ export default {
         xAxis: [
           {
             type: 'value',
+            // boundaryGap: [0, '100%'],
             axisLine: {
               show: true,
               lineStyle: {
@@ -432,6 +458,7 @@ export default {
             type: 'category',
             axisTick: { show: false },
             data: this.weekdata,
+            // boundaryGap: false,
             axisLine: {
               show: false,
               lineStyle: {
@@ -439,6 +466,18 @@ export default {
               }
             },
           }
+        ],
+        dataZoom: [
+          {
+            show: true,
+            handleIcon: 'M10.7,11.9v-1.3H9.3v1.3c-4.9,0.3-8.8,4.4-8.8,9.4c0,5,3.9,9.1,8.8,9.4v1.3h1.3v-1.3c4.9-0.3,8.8-4.4,8.8-9.4C19.5,16.3,15.6,12.2,10.7,11.9z M13.3,24.4H6.7V23h6.6V24.4z M13.3,19.6H6.7v-1.4h6.6V19.6z',
+            type: "slider",
+            start: 1,
+            end: 7,
+            yAxisIndex: [0],
+            borderColor: '#ccc',
+            left: '0%',
+            }
         ],
         series: [
           {
@@ -487,12 +526,13 @@ export default {
 .person_content {
   width: 100%;
   background-color: #ccc;
-  padding-top: 60px;
+  padding-top: 100px;
+  padding-bottom: 60px;
 }
+
 .charts{
   height: 600px;
-  width: 80%;
-  margin: 0 auto;
-  margin-top: 40px;
+  width: 60%;
+  margin: 50px auto;
 }
 </style>

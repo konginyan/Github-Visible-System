@@ -1,5 +1,5 @@
 <template>
-  <div class="searchresult_content">
+  <div class="starred_cotent">
     <transition name="slide">
       <div v-show="this.shownav" class="information-box">
         <!--<form>
@@ -11,12 +11,16 @@
     <transition name="fade">
       <div v-show="this.shownav" class="background-shelter" @click="setshow"></div>
     </transition>
+    <label><h2>我的Star:</h2></label>
     <div class="List">
-        <ul v-for="item in searchdatare">
-          <a v-html="item.name" v-on:click="showwarehousedata(item.count);"></a>
-          <hr>
-          <li>
+      <ul v-for="item in starredmsg">
+        <a v-bind:href="item.html_url" v-html="item.name" target="_blank"></a>
+        <hr>
+        <li>
             Description:&nbsp &nbsp{{item.description}}
+          </li>
+          <li>
+            Language:&nbsp &nbsp{{item.language}}
           </li>
           <li>
             Fork Count:&nbsp &nbsp{{item.forks_count}}
@@ -25,77 +29,72 @@
             Watchers Count:&nbsp &nbsp{{item.watchers_count}}
           </li>
           <li>
-            Star Count:&nbsp &nbsp{{item.stargazers_count}}
-          </li>
-          <li>
-            Score:&nbsp &nbsp{{item.score}}
-          </li>
-          <li>
             <a>The Owner:&nbsp</a>
             <a v-html="item.owner.login" v-bind:href="item.owner.html_url" target="_blank"></a>
           </li>
-        </ul>
+      </ul>
     </div>
   </div>
 </template>
 
 <script>
-  import config from '../config'
-  import {
-        mapGetters,
-        mapActions
-    } from 'vuex'
-  export default {
-    name: 'search',
-    created() {
+import { mapGetters, mapActions } from 'vuex'
+export default {
+  name: 'starred',
+  computed: {
+    ...mapGetters(['shownav', 'permsgJson'])
+  },
+  mounted() {
+    this.$nextTick(function () {
       this.getdata()
+    })
+  },
+  data () {
+    return{
+      starredurl: '',
+      starredmsg: []
+    }
+  },
+  methods: {
+    ...mapActions(['changenav']),
+    setshow () {
+      this.changenav()
     },
-    watch: {
-      // 如果路由有变化，会再次执行该方法
-      '$route': 'getdata'
+    getdata () {
+      var url = this.permsgJson.starred_url
+      var urlindex = url.indexOf('{')
+      this.starredurl = url.substr(0,urlindex)
+      //console.log(this.starredurl)
+      this.getstarredmsg()
     },
-    computed: {
-            ...mapGetters(['shownav'])
-    },
-    data() {
-      return {
-        searchdatare: [],
-        keyword: null,
-        show: false
-      }
-    },
-    methods: {
-      ...mapActions(['changenav']),
-            setshow() {
-                this.changenav()
-            },
-      async getdata () {
-        this.searchdatare = await config.searchdata
-        let count = 0;
-        // console.log(this.searchdatare)
-        this.searchdatare.forEach(item => {
-          item.count = count
-          count++
-        }) 
-        // console.log(this.searchdatare)
-      },
-      showwarehousedata (index){
-        this.$router.push({ path: '/person', query: { keyword: this.searchdatare[index].full_name } })
-      },
-      search_onclick() {
-        // console.log(this.search_input)
-        this.$router.push({ path: '/search', query: { keyword: this.search_input } })
-      }
+    async getstarredmsg () {
+      const response = await this.$http.get(this.starredurl)
+      console.log(response)
+      this.starredmsg = response.body
+      console.log(this.starredmsg)
     }
   }
+}
 </script>
 
 <style scoped>
-.searchresult_content{
-  width: 100%;
-  background-color: #ccc;
-  padding-top: 100px;
-  padding-bottom: 40px;
+.starred_content{
+  padding-top: 60px;
+}
+label{
+  width:100%;
+  cursor: default;
+}
+label h2{
+  text-align: left;
+  font-size: 3rem;
+  border-bottom: 1px solid #206766;
+  width: 80%;
+  height: 60px;
+  color: #155fea;
+  line-height: 80px;
+  margin-left: 10%;
+  margin-right: 10%;
 }
 .List{
   width: 1200px;
@@ -105,7 +104,7 @@
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
-  justify-content: center
+  justify-content: center;
 }
 .List ul{
   display: inline-block;
@@ -118,16 +117,17 @@
   background-color: #fff;
   box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.5);
 }
+
 .List ul:hover{
-  transition:transform 0.4s;
+  transition: transform 0.4s;
   transform: scale(1.05);
 }
+
 .List a {
   font-size: 40px;
   font-family: sans-serif;
   color: #555555;
   text-decoration: none;
-  cursor: pointer;
 }
 .List hr{
   height: 2px;
@@ -142,11 +142,8 @@
   font-size: 1.2em;
   padding: 5px 0;
 }
+
 @media screen and (max-width:1200px){
-  .linegraph{
-    width: 600px;
-    height: 500px;
-  }
   .List{
     width: 1000px;
   }
@@ -163,10 +160,6 @@
   }
 }
 @media screen and (max-width:800px){
-  .linegraph{
-    width: 600px;
-    height: 400px;
-  }
   .List{
     width: 500px;
   }
@@ -175,10 +168,6 @@
   }
 }
 @media screen and (max-width:500px){
-  .linegraph{
-    width: 400px;
-    height: 400px;
-  }
   .List{
     width: 400px;
   }
@@ -187,3 +176,4 @@
   }
 }
 </style>
+
